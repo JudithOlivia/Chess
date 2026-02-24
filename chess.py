@@ -26,6 +26,8 @@ MOVE_HIGHLIGHT = (130, 151, 105)
 
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess Game")
+clock = pygame.time.Clock()
+
 
 def load_images():
     pieces = ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king']
@@ -84,11 +86,13 @@ class Board:
 
             if 0 <= piece.row + direction < 8 and not self.board[piece.row + direction][piece.col]:
                 moves.append((piece.row + direction, piece.col))
+                
                 if piece.row == start_row and not self.board[piece.row + 2*direction][piece.col]:
                     moves.append((piece.row + 2*direction, piece.col))
 
             for dcol in [-1, 1]:
                 new_row, new_col = piece.row + direction, piece.col + dcol 
+                
                 if 0 <= new_row < 8 and 0 <= new_col < 8:
                     target = self.board[new_row][new_col]
                     if target and target.color != piece.color:
@@ -112,17 +116,60 @@ class Board:
                         break
         
         elif piece.piece_type == 'knight':
-            jumps = [(2, 1), (2, -1), (-2, 1), (-2, -1),
-                    (1, 2), (1, -2), (-1, 2), (-1, -2)]
+            jumps = [(2, 1), (2, -1), (-2, 1), (-2, -1),(1, 2), (1, -2), (-1, 2), (-1, -2)]
             for dr, dc in jumps:
                 new_row, new_col = piece.row + dr, piece.col + dc
                 if 0 <= new_row < 8 and 0 <= new_col < 8:
                     target = self.board[new_row][new_col]
                     if not target or target.color != piece.color:
                         moves.append((new_row, new_col))
-        return moves
         
-            
+        elif piece.piece_type == 'bishop':
+            directions = [(1,1), (1,-1), (-1,1), (-1,-1)]
+            for dr, dc in directions:
+                for i in range(1, 8):
+                    new_row, new_col = piece.row + dr*i, piece.col + dc*i
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        target = self.board[new_row][new_col]
+                        if not target:
+                            moves.append((new_row, new_col))
+                        elif target.color != piece.color:
+                            moves.append((new_row, new_col))
+                            break
+                        else:
+                            break
+                    else:
+                        break
+
+        elif piece.piece_type == 'queen':
+            directions = [(0,1), (0,-1), (1,0), (-1,0),(1,1), (1,-1), (-1,1), (-1,-1)]
+            for dr, dc in directions:
+                for i in range(1, 8):
+                    new_row, new_col = piece.row + dr*i, piece.col + dc*i
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        target = self.board[new_row][new_col]
+                        if not target:
+                            moves.append((new_row, new_col))
+                        elif target.color != piece.color:
+                            moves.append((new_row, new_col))
+                            break
+                        else:
+                            break
+                    else:
+                        break
+        
+
+        elif piece.piece_type == 'king':
+            directions = [(0,1), (0,-1), (1,0), (-1,0),(1,1), (1,-1), (-1,1), (-1,-1)]
+            for dr, dc in directions:
+                new_row, new_col = piece.row + dr, piece.col + dc
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    target = self.board[new_row][new_col]
+                    if not target or target.color != piece.color:
+                        moves.append((new_row, new_col))
+        
+        return moves
+
 
     def evaluate_board(self):
         score = 0
@@ -187,7 +234,8 @@ class ChessAI:
 
                 eval = self.minimax(board, depth - 1, alpha, beta, False)
 
-                board.board[old_row][old_col] = piece.piece.row, piece.col = old_row, old_col 
+                board.board[old_row][old_col] = piece
+                piece.row, piece.col = old_row, old_col
                 board.board[new_row][new_col] = target
 
                 max_eval = max(max_eval, eval)
@@ -243,10 +291,10 @@ class ChessAI:
 
 
 board = Board()
+ai = ChessAI(depth=2)
 game_over = False 
 running = True
 
-ai = ChessAI(depth=2)
 
 for row in range(ROWS):
     for col in range(COLS):
@@ -272,44 +320,43 @@ while running:
                 row = pos[1] // SQUARE_SIZE
                 board.handle_click(row, col)
 
+    if not game_over and board.current_turn == 'black':
+        best_move = ai.get_best_move(board)
+        if best_move:
+            piece, new_row, new_col = best_move
+            board.move_piece(piece, new_row, new_col)
+            board.current_turn = 'white'
+        pygame.time.wait(500)
+
     for row in range(ROWS):
         for col in range(COLS):
             color = Light_brown if (row + col) % 2 == 0 else Dark_brown 
             pygame.draw.rect(win, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-if board.current_turn == 'black':
-    best_move = ai.get_best_move(board)
-    if best_move:
-        piece, new_row, new_col = best_move
-        board.move_piece(piece, new_row, new_col)
-        board.current_turn = 'white'
-    pygame.time.wait(500)
-
-for row in range(ROWS):
-    for col in range(COLS):
-        piece = board.board[row][col]
-        if piece:
-           pass
-
-if board.selected_piece: 
-    pygame.draw.rect(win, HIGHLIGHT, 
-                     (board.selected_piece.col * SQUARE_SIZE,
-                      board.selected_piece.row * SQUARE_SIZE,
-                      SQUARE_SIZE, SQUARE_SIZE), 4)
+    if board.selected_piece: 
+        pygame.draw.rect(win, HIGHLIGHT, 
+                        (board.selected_piece.col * SQUARE_SIZE,
+                         board.selected_piece.row * SQUARE_SIZE,
+                         SQUARE_SIZE, SQUARE_SIZE), 4)
     
-for move in board.valid_moves: 
-    row, col = move 
-    pygame.draw.circle(win, MOVE_HIGHLIGHT, 
-                       (col * SQUARE_SIZE + SQUARE_SIZE // 2,
-                        row * SQUARE_SIZE + SQUARE_SIZE // 2),5 )
+    for move in board.valid_moves: 
+        row, col = move 
+        pygame.draw.circle(win, MOVE_HIGHLIGHT, 
+                          (col * SQUARE_SIZE + SQUARE_SIZE // 2,
+                           row * SQUARE_SIZE + SQUARE_SIZE // 2), 15)
 
-for row in range(ROWS):
+    for row in range(ROWS):
         for col in range(COLS):
             piece = board.board[row][col]
             if piece:
-                color = White if piece.color == 'white' else Black
-                pygame.draw.circle(win, color, 
-                                 (col * SQUARE_SIZE + SQUARE_SIZE//2,
-                                  row * SQUARE_SIZE + SQUARE_SIZE//2), 25)
-
-pygame.display.update()
+                if piece_images:  # Use images if available
+                    img_key = f"{piece.color}_{piece.piece_type}"
+                    win.blit(piece_images[img_key], 
+                            (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                else:  # Fallback to circles
+                    color = White if piece.color == 'white' else Black
+                    pygame.draw.circle(win, color, 
+                                     (col * SQUARE_SIZE + SQUARE_SIZE//2,
+                                      row * SQUARE_SIZE + SQUARE_SIZE//2), 25)
+    pygame.display.update()
+    clock.tick(60)
