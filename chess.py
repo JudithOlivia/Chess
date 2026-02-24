@@ -27,6 +27,24 @@ MOVE_HIGHLIGHT = (130, 151, 105)
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess Game")
 
+def load_images():
+    pieces = ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king']
+    colors = ['white', 'black']
+    images = {}
+    try:
+        for color in colors:
+            for piece in pieces:
+                img = pygame.image.load(f"images/{color}_{piece}.png")
+                img = pygame.transform.scale(img, (SQUARE_SIZE, SQUARE_SIZE))
+                images[f"{color}_{piece}"] = img
+        print("Images loaded successfully.")
+        return images
+    except:
+        print("Images not found - using circles instead")
+        return None
+
+piece_images = load_images()
+
 class Piece:
     def __init__(self, row, col, color, piece_type):
         self.row = row
@@ -65,6 +83,8 @@ class Board:
 
             if 0 <= piece.row + direction < 8 and not self.board[piece.row + direction][piece.col]:
                 moves.append((piece.row + direction, piece.col))
+                if piece.row == start_row and not self.board[piece.row + 2*direction][piece.col]:
+                    moves.append((piece.row + 2*direction, piece.col))
 
             for dcol in [-1, 1]:
                 new_row, new_col = piece.row + direction, piece.col + dcol 
@@ -100,6 +120,8 @@ class Board:
                     if not target or target.color != piece.color:
                         moves.append((new_row, new_col))
         return moves
+        
+            
 
     def evaluate_board(self):
         score = 0
@@ -217,7 +239,6 @@ class ChessAI:
                 best_move = move 
 
         return best_move
-
 
 
 board = Board()
