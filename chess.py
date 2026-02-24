@@ -80,6 +80,7 @@ class Board:
 
         if piece.piece_type == 'pawn':
             direction = -1 if piece.color == 'white' else 1
+            start_row = 6 if piece.color == 'white' else 1
 
             if 0 <= piece.row + direction < 8 and not self.board[piece.row + direction][piece.col]:
                 moves.append((piece.row + direction, piece.col))
