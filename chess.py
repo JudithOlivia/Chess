@@ -155,7 +155,7 @@ class ChessAI:
             return board.evaluate_board()
         if maximizing:
             max_eval = -math.inf
-            for move in board.get_all_moves('white':)
+            for move in board.get_all_moves('white'):
                 piece, new_row, new_col = move 
                 old_row, old_col, = piece.row, piece.col 
                 target = board.board[new_row][new_col]
@@ -164,7 +164,7 @@ class ChessAI:
 
                 eval = self.minimax(board, depth - 1, alpha, beta, False)
 
-                board.board[old_row][old_col] = piecepiece.row, piece.col = old_row, old_col 
+                board.board[old_row][old_col] = piece.piece.row, piece.col = old_row, old_col 
                 board.board[new_row][new_col] = target
 
                 max_eval = max(max_eval, eval)
@@ -212,9 +212,10 @@ class ChessAI:
             piece.row, piece.col = old_row, old_col
             board.board[new_row][new_col] = target
 
-            if move_vale > best_value:
+            if move_value > best_value:
                 best_value = move_value
                 best_move = move 
+
         return best_move
 
 
@@ -222,6 +223,8 @@ class ChessAI:
 board = Board()
 game_over = False 
 running = True
+
+ai = ChessAI(depth=2)
 
 for row in range(ROWS):
     for col in range(COLS):
