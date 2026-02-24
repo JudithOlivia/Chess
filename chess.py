@@ -255,6 +255,13 @@ while running:
             color = Light_brown if (row + col) % 2 == 0 else Dark_brown 
             pygame.draw.rect(win, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
+if board.current_turn == 'black':
+    best_move = ai.get_best_move(board)
+    if best_move:
+        piece, new_row, new_col = best_move
+        board.move_piece(piece, new_row, new_col)
+        board.current_turn = 'white'
+    pygame.time.wait(500)
 
 for row in range(ROWS):
     for col in range(COLS):
