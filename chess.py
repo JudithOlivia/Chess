@@ -31,6 +31,8 @@ class Board:
         self.board = [[None for _ in range(COLS)] for _ in range(ROWS)]
         self.create_board()
         self.current_turn = 'white'
+        self.selected_piece = None 
+        self.valid_moves = []
 
     def create_board(self):
         for col in range(COLS):
@@ -67,6 +69,20 @@ class Board:
         self.board[new_row][new_col] = piece
         piece.moved = True
 
+    
+    def handle_click(self, row, col):
+        clicked_piece = self.board[row][col]
+
+        if clicked_piece and clicked_piece.color == self.current_turn:
+            self.selected_piece = clicked_piece
+            self.valid_moves = self.get_valid_moves(clicked_piece)
+
+        elif self.selected_piece and (row, col) in self.valid_moves:
+            self.move_piece(self.selected_piece, row, col)
+            self.selected_piece = None 
+            self.valid_moves = []
+            self.current_turn = 'black' if self.current_turn == 'white' else 'white'
+
 
 running = True
 while running: 
@@ -75,6 +91,12 @@ while running:
             running = False 
             pygame.quit()
             sys.exit()
+        if not game_over and board.current_turn == 'white':
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                col = pos[0] // SQUARE_SIZE
+                row = pos[1] // SQUARE_SIZE
+                board.handle_click(row, col)
 
     for row in range(ROWS):
         for col in range(COLS):
@@ -89,4 +111,8 @@ for row in range(ROWS):
             print(piece, end=' ')
     print()
 
-    pygame.display.update()
+test_pawn = board.board[6][0]
+moves = board.get_valid_moves(test_pawn)
+print(f"Pawn moves: {moves}")
+
+pygame.display.update()
