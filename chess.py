@@ -1,6 +1,15 @@
 import pygame 
 import sys
 
+PIECE_VALUES = {
+    'pawn': 100,
+    'knight': 320,
+    'bishop': 330,
+    'rook': 500,
+    'queen': 900,
+    'king': 20000 
+}
+
 pygame.init()
 
 WIDTH, HEIGHT = 800, 800
@@ -62,7 +71,6 @@ class Board:
                     target = self.board[new_row][new_col]
                     if target and target.color != piece.color:
                         moves.append((new_row, new_col))
-        return moves
     
         elif piece.piece_type == 'rook':
             directions = [(0,1), (0,-1), (1,0), (-1,0)]
@@ -81,16 +89,29 @@ class Board:
                     else:
                         break
         
-    elif piece.piece_type == 'knight':
-        jumps = [(2, 1), (2, -1), (-2, 1), (-2, -1),
-                (1, 2), (1, -2), (-1, 2), (-1, -2)]
-        for dr, dc in jumps:
-            new_row, new_col = piece.row + dr, piece.col + dc
-            if 0 <= new_row < 8 and 0 <= new_col < 8:
-                target = self.board[new_row][new_col]
-                if not target or target.color != piece.color:
-                    moves.append((new_row, new_col))
-    return moves
+        elif piece.piece_type == 'knight':
+            jumps = [(2, 1), (2, -1), (-2, 1), (-2, -1),
+                    (1, 2), (1, -2), (-1, 2), (-1, -2)]
+            for dr, dc in jumps:
+                new_row, new_col = piece.row + dr, piece.col + dc
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    target = self.board[new_row][new_col]
+                    if not target or target.color != piece.color:
+                        moves.append((new_row, new_col))
+        return moves
+
+    def evaluate_board(self):
+        score = 0
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.board[row][col]
+                if piece:
+                    value = PIECE_VALUES[piece.piece_type]
+                    if piece.color == 'white':
+                        score += value
+                    else:
+                        score -= value
+        return score
     
     
     def move_piece(self, piece, new_row, new_col):
