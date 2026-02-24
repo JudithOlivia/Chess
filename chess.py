@@ -43,7 +43,30 @@ class Board:
             self.board[0][col] = Piece(0, col, 'black', piece_type)
             self.board[7][col] = Piece(7, col, 'white', piece_type)
 
+    def get_valid_moves(self, piece):
+        moves = []
+
+        if piece.piece_type == 'pawn':
+            direction = -1 if piece.color == 'white' else 1
+
+            if 0 <= piece.row + direction < 8 and not self.board[piece.row + direction][piece.col]:
+                moves.append((piece.row + direction, piece.col))
+
+            for dcol in [-1, 1]:
+                new_row, new_col = piece.row + direction, piece.col + dcol 
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    target = self.board[new_row][new_col]
+                    if target and target.color != piece.color:
+                        moves.append((new_row, new_col))
+        return moves
     
+    def move_piece(self, piece, new_row, new_col):
+        self.board[piece.row][piece.col] = None
+        piece.row = new_row
+        piece.col = new_col
+        self.board[new_row][new_col] = piece
+        piece.moved = True
+
 
 running = True
 while running: 
