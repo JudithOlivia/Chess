@@ -135,6 +135,16 @@ class Board:
             self.valid_moves = []
             self.current_turn = 'black' if self.current_turn == 'white' else 'white'
 
+    def get_all_moves(self, color):
+        moves = []
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.board[row][col]
+                if piece and piece.color == color:
+                    for move in self.get_valid_moves(piece):
+                        moves.append((piece, move[0], move[1]))
+        return moves
+
 board = Board()
 game_over = False 
 running = True
