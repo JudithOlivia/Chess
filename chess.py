@@ -64,6 +64,35 @@ class Board:
                         moves.append((new_row, new_col))
         return moves
     
+        elif piece.piece_type == 'rook':
+            directions = [(0,1), (0,-1), (1,0), (-1,0)]
+            for dr, dc in directions:
+                for i in range(1, 8):
+                    new_row, new_col = piece.row + dr*i, piece.col + dc*i
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        target = self.board[new_row][new_col]
+                        if not target:
+                            moves.append((new_row, new_col))
+                        elif target.color != piece.color:
+                            moves.append((new_row, new_col))
+                            break
+                        else:
+                            break
+                    else:
+                        break
+        
+    elif piece.piece_type == 'knight':
+        jumps = [(2, 1), (2, -1), (-2, 1), (-2, -1),
+                (1, 2), (1, -2), (-1, 2), (-1, -2)]
+        for dr, dc in jumps:
+            new_row, new_col = piece.row + dr, piece.col + dc
+            if 0 <= new_row < 8 and 0 <= new_col < 8:
+                target = self.board[new_row][new_col]
+                if not target or target.color != piece.color:
+                    moves.append((new_row, new_col))
+    return moves
+    
+    
     def move_piece(self, piece, new_row, new_col):
         self.board[piece.row][piece.col] = None
         piece.row = new_row
@@ -123,8 +152,7 @@ for row in range(ROWS):
     for col in range(COLS):
         piece = board.board[row][col]
         if piece:
-            print(piece, end=' ')
-    print()
+           pass
 
 if board.selected_piece: 
     pygame.draw.rect(win, HIGHLIGHT, 
@@ -137,5 +165,14 @@ for move in board.valid_moves:
     pygame.draw.circle(win, MOVE_HIGHLIGHT, 
                        (col * SQUARE_SIZE + SQUARE_SIZE // 2,
                         row * SQUARE_SIZE + SQUARE_SIZE // 2),5 )
+
+for row in range(ROWS):
+        for col in range(COLS):
+            piece = board.board[row][col]
+            if piece:
+                color = White if piece.color == 'white' else Black
+                pygame.draw.circle(win, color, 
+                                 (col * SQUARE_SIZE + SQUARE_SIZE//2,
+                                  row * SQUARE_SIZE + SQUARE_SIZE//2), 25)
 
 pygame.display.update()
