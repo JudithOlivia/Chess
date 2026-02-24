@@ -1,5 +1,6 @@
 import pygame 
 import sys
+import math
 
 PIECE_VALUES = {
     'pawn': 100,
@@ -144,6 +145,55 @@ class Board:
                     for move in self.get_valid_moves(piece):
                         moves.append((piece, move[0], move[1]))
         return moves
+
+class ChessAI:
+    def __init__(self, depth=2):
+        self.depth = depth 
+
+    def minimax(self, board, depth, alpha, beta, maximizing):
+        if depth == 0:
+            return board.evaluate_board()
+        if maximizing:
+            max_eval = -math.inf
+            for move in board.get_all_moves('white':)
+                piece, new_row, new_col = move 
+                old_row, old_col, = piece.row, piece.col 
+                target = board.board[new_row][new_col]
+
+                board.move_piece(piece, new_row, new_col)
+
+                eval = self.minimax(board, depth - 1, alpha, beta, False)
+
+                board.board[old_row][old_col] = piecepiece.row, piece.col = old_row, old_col 
+                board.board[new_row][new_col] = target
+
+                max_eval = max(max_eval, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+            return max_eval
+        
+        else:
+            min_eval = math.inf
+            for move in board.get_all_moves('black'):
+                piece, new_row, new_col = move
+                old_row, old_col = piece.row, piece.col
+                target = board.board[new_row][new_col]
+
+                board.move_piece(piece, new_row, new_col)
+
+                eval = self.minimax(board, depth - 1, alpha, beta, True)
+
+                board.board[old_row][old_col] = piece
+                piece.row, piece.col = old_row, old_col
+                board.board[new_row][new_col] = target
+
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+            return min_eval
+
 
 board = Board()
 game_over = False 
