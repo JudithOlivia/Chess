@@ -11,6 +11,8 @@ White = (255, 255, 255)
 Black = (0, 0, 0)
 Light_brown = (240, 217, 181)
 Dark_brown = (181, 136, 99)
+HIGHLIGHT = (186, 202, 68)  
+MOVE_HIGHLIGHT = (130, 151, 105)  
 
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess Game")
@@ -83,8 +85,21 @@ class Board:
             self.valid_moves = []
             self.current_turn = 'black' if self.current_turn == 'white' else 'white'
 
-
+board = Board()
+game_over = False 
 running = True
+
+for row in range(ROWS):
+    for col in range(COLS):
+        piece = board.board[row][col]
+        if piece:
+            print(piece, end=' ')
+    print()
+
+test_pawn = board.board[6][0]
+moves = board.get_valid_moves(test_pawn)
+print(f"Pawn moves: {moves}")
+
 while running: 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -103,7 +118,7 @@ while running:
             color = Light_brown if (row + col) % 2 == 0 else Dark_brown 
             pygame.draw.rect(win, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-board = Board()
+
 for row in range(ROWS):
     for col in range(COLS):
         piece = board.board[row][col]
@@ -111,8 +126,16 @@ for row in range(ROWS):
             print(piece, end=' ')
     print()
 
-test_pawn = board.board[6][0]
-moves = board.get_valid_moves(test_pawn)
-print(f"Pawn moves: {moves}")
+if board.selected_piece: 
+    pygame.draw.rect(win, HIGHLIGHT, 
+                     (board.selected_piece.col * SQUARE_SIZE,
+                      board.selected_piece.row * SQUARE_SIZE,
+                      SQUARE_SIZE, SQUARE_SIZE), 4)
+    
+for move in board.valid_moves: 
+    row, col = move 
+    pygame.draw.circle(win, MOVE_HIGHLIGHT, 
+                       (col * SQUARE_SIZE + SQUARE_SIZE // 2,
+                        row * SQUARE_SIZE + SQUARE_SIZE // 2),5 )
 
 pygame.display.update()
