@@ -43,6 +43,8 @@ class Board:
             self.board[0][col] = Piece(0, col, 'black', piece_type)
             self.board[7][col] = Piece(7, col, 'white', piece_type)
 
+    
+
 running = True
 while running: 
     for event in pygame.event.get():
