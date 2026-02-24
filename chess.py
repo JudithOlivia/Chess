@@ -193,6 +193,30 @@ class ChessAI:
                 if beta <= alpha:
                     break
             return min_eval
+        
+    
+    def get_best_move(self, board):
+        best_move = None
+        best_value = -math.inf
+
+        for move in board.get_all_moves('black'):
+            piece, new_row, new_col = move
+            old_row, old_col = piece.row, piece.col 
+            target = board.board[new_row][new_col]
+
+            board.move_piece(piece, new_row, new_col)
+
+            move_value = self.minimax(board, self.depth-1, -math.inf, math.inf, True)
+
+            board.board[old_row][old_col] = piece
+            piece.row, piece.col = old_row, old_col
+            board.board[new_row][new_col] = target
+
+            if move_vale > best_value:
+                best_value = move_value
+                best_move = move 
+        return best_move
+
 
 
 board = Board()
