@@ -15,6 +15,19 @@ Dark_brown = (181, 136, 99)
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess Game")
 
+class Piece:
+    def __init__(self, row, col, color, piece_type):
+        self.row = row
+        self.col = col
+        self.color = color
+        self.piece_type = piece_type
+        self.moved = False
+
+    def __repr__(self):
+        return f"{self.color[0]}{self.piece_type[0]}"
+
+
+
 running = True
 while running: 
     for event in pygame.event.get():
