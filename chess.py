@@ -73,6 +73,10 @@ class Board:
         self.current_turn = 'white'
         self.selected_piece = None 
         self.valid_moves = []
+        self.white_king_pos = (7, 4)  
+        self.black_king_pos = (0, 4)  
+        self.check = False
+        self.checkmate = False
 
     def create_board(self):
         for col in range(COLS):
@@ -126,7 +130,7 @@ class Board:
         elif piece.piece_type == 'knight':
             jumps = [(2, 1), (2, -1), (-2, 1), (-2, -1),(1, 2), (1, -2), (-1, 2), (-1, -2)]
             for dr, dc in jumps:
-                new_row, new_col = piece.row + dr, piece.col + dc
+                new_row, new_col = piece.row + dr, piece.col + dc   
                 if 0 <= new_row < 8 and 0 <= new_col < 8:
                     target = self.board[new_row][new_col]
                     if not target or target.color != piece.color:
@@ -178,7 +182,7 @@ class Board:
         
         valid_moves = []
         for move in moves:
-            if self.is_valid_move(piece, move[0], move[1]):
+            if self.is_move_safe(piece, move[0], move[1]):
                 valid_moves.append(move)
 
         return valid_moves
@@ -261,11 +265,11 @@ class Board:
         elif piece.piece_type == 'knight':
             jumps = [(2,1), (2,-1), (-2,1), (-2,-1), (1,2), (1,-2), (-1,2), (-1,-2)]
             for dr, dc in jumps:
-                new_row, new_col = piece.row + dr, piece.col + dc
-                if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    target = self.board[new_row][new_col]
-                    if not target or target.color != piece.color:
-                        moves.append((new_row, new_col))
+                    new_row, new_col = piece.row + dr, piece.col + dc
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        target = self.board[new_row][new_col]
+                        if not target or target.color != piece.color:
+                            moves.append((new_row, new_col))
 
         elif piece.piece_type == 'bishop':
             directions = [(1,1), (1,-1), (-1,1), (-1,-1)]
@@ -286,17 +290,18 @@ class Board:
         elif piece.piece_type == 'queen': 
             directions = [(0,1), (0,-1), (1,0), (-1,0),(1,1), (1,-1), (-1,1), (-1,-1)]
             for dr, dc in directions: 
-                new_row, new_col = piece.row + dr*i, piece.col + dc*i
-                if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    target = self.board[new_row][new_col]
-                    if not target:
-                        moves.append((new_row, new_col))
-                    else:
-                        if target.color != piece.color:
+                for i in range(1, 8):
+                    new_row, new_col = piece.row + dr*i, piece.col + dc*i
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        target = self.board[new_row][new_col]
+                        if not target:
                             moves.append((new_row, new_col))
+                        else:
+                            if target.color != piece.color:
+                                moves.append((new_row, new_col))
+                            break
+                    else:
                         break
-                else:
-                    break
 
         elif piece.piece_type == 'king':
             directions = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]
@@ -314,8 +319,8 @@ class Board:
         
         for row in range(ROWS):
             for col in range(COLS):
-                piece = self.boaard[row][col]
-                if piece and piece.coloe == color:
+                piece = self.board[row][col]
+                if piece and piece.color == color:
                     moves = self.get_valid_moves(piece)
                     if moves:
                         return False
@@ -494,7 +499,7 @@ while running:
             pygame.quit()
             sys.exit()
         
-        if event.typw == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN:
             if close_button_rect.collidepoint(event.pos):
                 running = False
                 pygame.quit()
